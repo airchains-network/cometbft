@@ -37,6 +37,11 @@ func (es *EventSink) TxIndexer() BackportTxIndexer {
 // indexing operations to an underlying PostgreSQL event sink.
 type BackportTxIndexer struct{ psql *EventSink }
 
+func (b BackportTxIndexer) AddPod(batch *txindex.Batch) error {
+	return b.psql.IndexTxEvents(batch.Ops)
+
+}
+
 // AddBatch indexes a batch of transactions in Postgres, as part of TxIndexer.
 func (b BackportTxIndexer) AddBatch(batch *txindex.Batch) error {
 	return b.psql.IndexTxEvents(batch.Ops)

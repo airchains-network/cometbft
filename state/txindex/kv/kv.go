@@ -100,6 +100,33 @@ func (txi *TxIndex) AddBatch(b *txindex.Batch) error {
 	return storeBatch.WriteSync()
 }
 
+// AddPod store array of txs in batches of 128 to be used for zk and junction
+func (txi *TxIndex) AddPod(b *txindex.Batch) error {
+
+	// Get podsCount to check if database is initialised
+	podsCountBytes, err := txi.store.Get(KeyCountPods)
+	if err != nil {
+		return fmt.Errorf("failed to get KeyCountPods: %w", err)
+	}
+	// Initiate Database For Pods if not initialised already
+	if len(podsCountBytes) == 0 {
+		err = InitiateDatabaseForPods(txi)
+		if err != nil {
+			return fmt.Errorf("failed to initialize KeyCountPods: %w", err)
+		}
+	}
+
+	// store txHashes if batch have transactions
+	if len(b.Ops) != 0 {
+		err = StoreTxHashesBatch(txi, b)
+		if err != nil {
+			return fmt.Errorf("failed to store tx batches in database %w", err)
+		}
+	}
+
+	return nil
+}
+
 // Index indexes a single transaction using the given list of events. Each key
 // that indexed from the tx's events is a composite of the event type and the
 // respective attribute's key delimited by a "." (eg. "account.number").

@@ -17,6 +17,9 @@ type TxIndexer interface {
 	// AddBatch analyzes, indexes and stores a batch of transactions.
 	AddBatch(b *Batch) error
 
+	// AddPod is made to store tx hash of transactions at set of 128 each specifically for junction and ZK proofs verification
+	AddPod(b *Batch) error // client cosmosclient.Client, registry cosmosaccount.Registry, account cosmosaccount.Account) error
+
 	// Index analyzes, indexes and stores a single transaction.
 	Index(result *abci.TxResult) error
 

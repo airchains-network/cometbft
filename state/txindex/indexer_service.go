@@ -2,7 +2,6 @@ package txindex
 
 import (
 	"context"
-
 	"github.com/tendermint/tendermint/libs/service"
 	"github.com/tendermint/tendermint/state/indexer"
 	"github.com/tendermint/tendermint/types"
@@ -94,11 +93,12 @@ func (is *IndexerService) OnStart() error {
 					return
 				}
 			} else {
-				is.Logger.Info("indexed block exents", "height", height)
+				is.Logger.Info("indexed block events: version 4", "height", height)
 			}
 
 			if err = is.txIdxr.AddBatch(batch); err != nil {
-				is.Logger.Error("failed to index block txs", "height", height, "err", err)
+				is.Logger.Info("failed to index block txs", "height", height)
+				//is.Logger.Error("failed to index block txs", "height", height, "err", err)
 				if is.terminateOnError {
 					if err := is.Stop(); err != nil {
 						is.Logger.Error("failed to stop", "err", err)
@@ -106,7 +106,22 @@ func (is *IndexerService) OnStart() error {
 					return
 				}
 			} else {
-				is.Logger.Debug("indexed transactions", "height", height, "num_txs", eventDataHeader.NumTxs)
+				is.Logger.Info("indexed transactions", "height", height)
+				//is.Logger.Debug("indexed transactions", "height", height, "num_txs", eventDataHeader.NumTxs)
+			}
+
+			// index pods in database for junction and zk proofs
+			err = is.txIdxr.AddPod(batch)
+			if err != nil {
+				is.Logger.Info("failed to index block txs", "height", height, "err", err)
+				if is.terminateOnError {
+					if err := is.Stop(); err != nil {
+						is.Logger.Error("failed to stop", "err", err)
+					}
+					return
+				}
+			} else {
+				is.Logger.Info("indexed pods transactions for junction", "height", height, "num_txs", eventDataHeader.NumTxs)
 			}
 		}
 	}()

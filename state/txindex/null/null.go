@@ -14,6 +14,10 @@ var _ txindex.TxIndexer = (*TxIndex)(nil)
 // TxIndex acts as a /dev/null.
 type TxIndex struct{}
 
+func (txi *TxIndex) AddPod(b *txindex.Batch) error {
+	return nil
+}
+
 // Get on a TxIndex is disabled and panics when invoked.
 func (txi *TxIndex) Get(hash []byte) (*abci.TxResult, error) {
 	return nil, errors.New(`indexing is disabled (set 'tx_index = "kv"' in config)`)
