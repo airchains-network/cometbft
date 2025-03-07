@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -61,6 +62,50 @@ func (txi *TxIndex) Get(hash []byte) (*abci.TxResult, error) {
 	}
 
 	return txResult, nil
+}
+
+func (txi *TxIndex) CountPodsTxs() (batchCount uint64, err error) {
+
+	batchCount = 0 // default 0: batchCount can not be zero
+	b, err := txi.store.Get(KeyCountPodsTxs)
+	if err != nil {
+		return batchCount, err
+	}
+	if b == nil {
+		return batchCount, nil
+	}
+
+	batchCount = BytesToUint64(b)
+	return batchCount, nil
+}
+
+func (txi *TxIndex) GetBatchArray(batchNumber uint64) ([][]byte, error) {
+	batchCountByte := Uint64ToBytes(batchNumber)
+	var txHashesBatch [][]byte
+	KeyTxHashesBatch := append(KeyTxHashesBatchPrefix, batchCountByte...)
+	batch, err := txi.store.Get(KeyTxHashesBatch)
+	if err != nil {
+		return txHashesBatch, err
+	}
+	if batch == nil {
+		return txHashesBatch, nil
+	}
+
+	var txHashes []string
+	err = json.Unmarshal(batch, &txHashes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal transaction hashes batch: %w", err)
+	}
+
+	for _, hastByte := range txHashes {
+		hashByte, err := hex.DecodeString(hastByte)
+		if err != nil {
+			return nil, fmt.Errorf("error in decoding transaction hash byte")
+		}
+		txHashesBatch = append(txHashesBatch, hashByte)
+	}
+
+	return txHashesBatch, nil
 }
 
 // AddBatch indexes a batch of transactions using the given list of events. Each

@@ -37,6 +37,16 @@ func (es *EventSink) TxIndexer() BackportTxIndexer {
 // indexing operations to an underlying PostgreSQL event sink.
 type BackportTxIndexer struct{ psql *EventSink }
 
+func (b BackportTxIndexer) GetBatchArray(batchNumber uint64) ([][]byte, error) {
+	_ = batchNumber
+	var txs [][]byte
+	return txs, errors.New("the TxIndexer.GetBatchArray method is not supported")
+}
+
+func (b BackportTxIndexer) CountPodsTxs() (uint64, error) {
+	return 0, errors.New("the TxIndexer.CountPodsTxs method is not supported")
+}
+
 func (b BackportTxIndexer) AddPod(batch *txindex.Batch) error {
 	return b.psql.IndexTxEvents(batch.Ops)
 

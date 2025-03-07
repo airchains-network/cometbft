@@ -27,6 +27,9 @@ type TxIndexer interface {
 	// or stored.
 	Get(hash []byte) (*abci.TxResult, error)
 
+	CountPodsTxs() (uint64, error)
+	GetBatchArray(batchNumber uint64) ([][]byte, error)
+
 	// Search allows you to query for transactions.
 	Search(ctx context.Context, q *query.Query) ([]*abci.TxResult, error)
 }

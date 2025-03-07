@@ -55,6 +55,18 @@ func (_m *TxIndexer) Get(hash []byte) (*types.TxResult, error) {
 	return r0, r1
 }
 
+// mock call
+func CountPodsTxs() (uint64, error) {
+	return 0, nil
+}
+
+// mock call
+func GetBatchArray(batchNumber uint64) ([][]byte, error) {
+	_ = batchNumber
+	var txs [][]byte
+	return txs, nil
+}
+
 // Index provides a mock function with given fields: result
 func (_m *TxIndexer) Index(result *types.TxResult) error {
 	ret := _m.Called(result)

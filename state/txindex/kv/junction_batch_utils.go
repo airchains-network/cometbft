@@ -2,6 +2,8 @@ package kv
 
 import (
 	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/tendermint/tendermint/state/txindex"
 	"github.com/tendermint/tendermint/types"
@@ -16,7 +18,6 @@ var (
 
 // InitiateDatabaseForPods 🔹 Initializes the database for storing transaction batches
 func InitiateDatabaseForPods(txi *TxIndex) error {
-
 	if txi.store == nil {
 		return fmt.Errorf("txi.store is not initialized")
 	}
@@ -32,12 +33,6 @@ func InitiateDatabaseForPods(txi *TxIndex) error {
 	if err != nil {
 		return fmt.Errorf("failed to set KeyCountPods: %w", err)
 	}
-
-	// Initialize KeyTxHashesBatch (transaction hashes batch) for batch 1
-	//err = SetTxHashesBatch(txi, 1, [][]byte{})
-	//if err != nil {
-	//	return fmt.Errorf("failed to initialize first batch: %w", err)
-	//}
 
 	return nil
 }
@@ -64,14 +59,15 @@ func StoreTxHashesBatch(txi *TxIndex, b *txindex.Batch) error {
 	existingTxHashes, err := GetTxHashesBatch(txi, countPods)
 	if err != nil {
 		// First batch initialization (if no batch exists yet)
-		existingTxHashes = [][]byte{}
+		existingTxHashes = []string{}
 	}
 
 	// 🔹 Process new transaction hashes from b.Ops
-	var newTxHashes [][]byte
+	var newTxHashes []string
 	for _, result := range b.Ops {
 		hashByte := types.Tx(result.Tx).Hash()
-		newTxHashes = append(newTxHashes, hashByte)
+		hashStr := hex.EncodeToString(hashByte) // Convert to hex string
+		newTxHashes = append(newTxHashes, hashStr)
 	}
 
 	// 🔹 Merge existing and new hashes
@@ -112,20 +108,21 @@ func StoreTxHashesBatch(txi *TxIndex, b *txindex.Batch) error {
 	return nil
 }
 
-// SetTxHashesBatch 🔹 Store transaction hashes for a specific batch number
-func SetTxHashesBatch(txi *TxIndex, batchNumber uint64, hashes [][]byte) error {
+// SetTxHashesBatch 🔹 Store transaction hashes for a specific batch number (Marshals and saves as JSON)
+func SetTxHashesBatch(txi *TxIndex, batchNumber uint64, hashes []string) error {
 	KeyTxHashesBatch := append(KeyTxHashesBatchPrefix, Uint64ToBytes(batchNumber)...)
 
-	var batchBytes []byte
-	for _, hash := range hashes {
-		batchBytes = append(batchBytes, hash...)
+	// Marshal hashes to JSON before saving
+	batchBytes, err := json.Marshal(hashes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal transaction hashes batch: %w", err)
 	}
 
 	return txi.store.Set(KeyTxHashesBatch, batchBytes)
 }
 
-// GetTxHashesBatch 🔹 Retrieve transaction hashes for a specific batch number
-func GetTxHashesBatch(txi *TxIndex, batchNumber uint64) ([][]byte, error) {
+// GetTxHashesBatch 🔹 Retrieve transaction hashes for a specific batch number (Unmarshals JSON)
+func GetTxHashesBatch(txi *TxIndex, batchNumber uint64) ([]string, error) {
 	KeyTxHashesBatch := append(KeyTxHashesBatchPrefix, Uint64ToBytes(batchNumber)...)
 
 	batch, err := txi.store.Get(KeyTxHashesBatch)
@@ -133,12 +130,12 @@ func GetTxHashesBatch(txi *TxIndex, batchNumber uint64) ([][]byte, error) {
 		return nil, fmt.Errorf("batch not found")
 	}
 
-	var txHashes [][]byte
-	for i := 0; i < len(batch); i += 32 { // Assuming 32-byte transaction hashes
-		if i+32 <= len(batch) {
-			txHashes = append(txHashes, batch[i:i+32])
-		}
+	var txHashes []string
+	err = json.Unmarshal(batch, &txHashes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal transaction hashes batch: %w", err)
 	}
+
 	return txHashes, nil
 }
 

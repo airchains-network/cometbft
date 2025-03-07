@@ -2,14 +2,13 @@ package coretypes
 
 import (
 	"encoding/json"
-	"time"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/bytes"
 	"github.com/tendermint/tendermint/p2p"
 	cmtproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"github.com/tendermint/tendermint/types"
+	"time"
 )
 
 // List of blocks
@@ -197,6 +196,17 @@ type ResultTx struct {
 	TxResult abci.ResponseDeliverTx `json:"tx_result"`
 	Tx       types.Tx               `json:"tx"`
 	Proof    types.TxProof          `json:"proof,omitempty"`
+}
+
+// Result of querying for ResultPodCount
+type ResultPodCount struct {
+	Count uint64 `json:"count"`
+}
+
+type ResultGetTxHashesByBatch struct {
+	TxCount      uint64      `json:"tx_count"`
+	Transactions []*ResultTx `json:"transactions"`
+	TxHashes     []string    `json:"tx_hashes"`
 }
 
 // Result of searching for txs

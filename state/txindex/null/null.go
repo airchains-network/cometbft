@@ -14,6 +14,16 @@ var _ txindex.TxIndexer = (*TxIndex)(nil)
 // TxIndex acts as a /dev/null.
 type TxIndex struct{}
 
+func (txi *TxIndex) GetBatchArray(batchNumber uint64) ([][]byte, error) {
+	var txHashesBatch [][]byte
+	return txHashesBatch, errors.New(`indexing is disabled (set 'tx_index = "kv"' in config)`)
+}
+
+func (txi *TxIndex) CountPodsTxs() (uint64, error) {
+	return 0, errors.New(`indexing is disabled (set 'tx_index = "kv"' in config)`)
+
+}
+
 func (txi *TxIndex) AddPod(b *txindex.Batch) error {
 	return nil
 }
