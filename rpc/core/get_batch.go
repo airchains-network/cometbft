@@ -25,22 +25,29 @@ func GetBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.ResultGetBatch
 
 	var txs []*ctypes.ResultTx
 	var txHashes []string
+	var txCount uint64
+	var batchCompleted bool
+	batchCompleted = false
+	txCount = 0
 	for _, hash := range r {
-
 		tx, err := Tx(ctx, hash, true)
 		if err != nil {
 			return nil, err
-		} else {
-			txs = append(txs, tx)
-			hashStr := hex.EncodeToString(hash)
-			txHashes = append(txHashes, hashStr)
 		}
-	}
 
+		txs = append(txs, tx)
+		hashStr := hex.EncodeToString(hash)
+		txHashes = append(txHashes, hashStr)
+		txCount++
+	}
+	if txCount == 128 {
+		batchCompleted = true
+	}
 	return &ctypes.ResultGetBatch{
-		TxCount:      0,
-		Transactions: txs,
-		TxHashes:     txHashes,
+		TxCount:        txCount,
+		Transactions:   txs,
+		TxHashes:       txHashes,
+		BatchCompleted: batchCompleted,
 	}, nil
 
 }

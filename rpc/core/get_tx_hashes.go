@@ -25,6 +25,8 @@ func GetTxHashesByBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.Resu
 
 	var txHashes []string
 	var txCount uint64
+	var batchCompleted bool
+	batchCompleted = false
 	txCount = 0
 	for _, hash := range r {
 		tx, err := Tx(ctx, hash, true)
@@ -45,9 +47,14 @@ func GetTxHashesByBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.Resu
 		txCount++
 	}
 
+	if txCount == 128 {
+		batchCompleted = true
+	}
+
 	return &ctypes.ResultGetTxHashesByBatch{
-		TxCount:  txCount,
-		TxHashes: txHashes,
+		TxCount:        txCount,
+		TxHashes:       txHashes,
+		BatchCompleted: batchCompleted,
 	}, nil
 
 }

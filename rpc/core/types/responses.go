@@ -200,18 +200,21 @@ type ResultTx struct {
 
 // Result of querying for ResultPodCount
 type ResultPodCount struct {
-	TxCount  uint64 `json:"tx_count"`
-	PodCount uint64 `json:"count"`
+	TxCount        uint64 `json:"tx_count"`
+	PodCount       uint64 `json:"count"`
+	BatchCompleted bool   `json:"batch_completed"`
 }
 
 type ResultGetBatch struct {
-	TxCount      uint64      `json:"tx_count"`
-	Transactions []*ResultTx `json:"transactions"`
-	TxHashes     []string    `json:"tx_hashes"`
+	TxCount        uint64      `json:"tx_count"`
+	Transactions   []*ResultTx `json:"transactions"`
+	TxHashes       []string    `json:"tx_hashes"`
+	BatchCompleted bool        `json:"batch_completed"`
 }
 type ResultGetTxHashesByBatch struct {
-	TxCount  uint64   `json:"tx_count"`
-	TxHashes []string `json:"tx_hashes"`
+	TxCount        uint64   `json:"tx_count"`
+	TxHashes       []string `json:"tx_hashes"`
+	BatchCompleted bool     `json:"batch_completed"`
 }
 
 // Result of searching for txs

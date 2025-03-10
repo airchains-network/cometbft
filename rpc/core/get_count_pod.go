@@ -19,10 +19,17 @@ func GetCountPods(ctx *rpctypes.Context) (*ctypes.ResultPodCount, error) {
 	// 1 pod can have max 128 transactions.
 	maxTxPerPod := uint64(128)
 	podCount := countPods(txCount, maxTxPerPod)
+	var batchCompleted bool
+	batchCompleted = false
+
+	if txCount%maxTxPerPod == 0 {
+		batchCompleted = true
+	}
 
 	return &ctypes.ResultPodCount{
-		TxCount:  txCount,
-		PodCount: podCount,
+		TxCount:        txCount,
+		PodCount:       podCount,
+		BatchCompleted: batchCompleted,
 	}, nil
 }
 func countPods(txCount, maxTxPerPod uint64) uint64 {
