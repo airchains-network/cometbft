@@ -8,7 +8,7 @@ import (
 	"github.com/tendermint/tendermint/state/txindex/null"
 )
 
-func GetTxHashesByBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.ResultGetTxHashesByBatch, error) {
+func GetBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.ResultGetBatch, error) {
 
 	// if index is disabled, return error
 	if _, ok := env.TxIndexer.(*null.TxIndex); ok {
@@ -37,7 +37,7 @@ func GetTxHashesByBatch(ctx *rpctypes.Context, batchNumber uint64) (*ctypes.Resu
 		}
 	}
 
-	return &ctypes.ResultGetTxHashesByBatch{
+	return &ctypes.ResultGetBatch{
 		TxCount:      0,
 		Transactions: txs,
 		TxHashes:     txHashes,

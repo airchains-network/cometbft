@@ -203,10 +203,14 @@ type ResultPodCount struct {
 	Count uint64 `json:"count"`
 }
 
-type ResultGetTxHashesByBatch struct {
+type ResultGetBatch struct {
 	TxCount      uint64      `json:"tx_count"`
 	Transactions []*ResultTx `json:"transactions"`
 	TxHashes     []string    `json:"tx_hashes"`
+}
+type ResultGetTxHashesByBatch struct {
+	TxCount  uint64   `json:"tx_count"`
+	TxHashes []string `json:"tx_hashes"`
 }
 
 // Result of searching for txs

@@ -14,8 +14,9 @@ var Routes = map[string]*rpc.RPCFunc{
 	"unsubscribe_all": rpc.NewWSRPCFunc(UnsubscribeAll, ""),
 
 	// pod specific RPC clients for junction and ZK proving
-	"get_batch":       rpc.NewRPCFunc(GetTxHashesByBatch, "batch_number"),
-	"get_batch_count": rpc.NewRPCFunc(GetCountPods, ""),
+	"get_batch_hashes": rpc.NewRPCFunc(GetTxHashesByBatch, "batch_number"),
+	"get_batch":        rpc.NewRPCFunc(GetBatch, "batch_number"),
+	"get_batch_count":  rpc.NewRPCFunc(GetCountPods, ""),
 
 	// info API
 	"health":               rpc.NewRPCFunc(Health, ""),
