@@ -200,7 +200,8 @@ type ResultTx struct {
 
 // Result of querying for ResultPodCount
 type ResultPodCount struct {
-	Count uint64 `json:"count"`
+	TxCount  uint64 `json:"tx_count"`
+	PodCount uint64 `json:"count"`
 }
 
 type ResultGetBatch struct {
